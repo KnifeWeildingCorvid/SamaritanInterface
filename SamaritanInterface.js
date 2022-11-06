@@ -231,6 +231,16 @@ class Node {
 
             });
         } else {
+            
+            particles.forEach(element => {
+               
+                let d = dist(this.x, this.y, element.x, element.y);
+                let m = map(d,0,width, 0,1);
+                stroke(`rgba(255,0,0,${constrain(1-m,0,1)})`)
+                line(this.x, this.y, element.x, element.y);
+
+
+            });
             stroke('rgba(255,0,0,0.4)');
             line(this.x, this.y, width/2, height/2)
         }
@@ -346,7 +356,14 @@ function draw() {
     } else {
         threat.hide();
     }
-    
+    textSize(16);
+    textAlign(CENTER, TOP);
+    noStroke();
+    fill(255)
+    text('Hover over the network nodes. Make sure to visit them all.', 0, 30, width);
+    textAlign(RIGHT);
+    textSize(11);
+    text('Steal it. No warranty though. Made with p5.', -10, height - 20, width);
     cursor.draw();
 
 }
