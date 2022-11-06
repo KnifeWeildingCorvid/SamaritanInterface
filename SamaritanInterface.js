@@ -273,7 +273,9 @@ function setup() {
     threat = select('#samaritan_threat');
     cycle = select('#image_cycle');
     projection = select('.projection.text .value');
-    conclusion = select('.conclusion.text .value')
+    conclusion = select('.conclusion.text .value');
+    //run this once so the images load
+    imageCycle(cycle, evidence);
     threat.hide();
     loadData();
     grid = new Grid(100, windowWidth, windowHeight);
