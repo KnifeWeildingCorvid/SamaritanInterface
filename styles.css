@@ -1,0 +1,127 @@
+main {
+    display:flex;
+}
+#info {
+    padding:12px;
+    background-color:rgba(0, 0, 0, 0.432);
+    border:2px solid rgba(255, 255, 255, 0.514);
+    border-radius:10px;
+    color:rgba(255, 255, 255, 0.753);
+    font-family:'Courier New', Courier, monospace;
+    max-width:300px;
+    width:100%;
+    font-size:1em;
+    z-index:1000;
+}
+.interest {
+    color:red;
+}
+.heading {
+    font-weight:bold;
+}
+#samaritan_threat {
+    max-width:400px;
+    width:100%;
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+    display:flex;
+    flex-direction: column;
+    background-color: black;
+    color:white;
+    font-family: 'Courier New', Courier, monospace;
+    border:1px solid rgba(255, 255, 255, 0.185);
+}
+#samaritan_threat::before {
+    content:"";
+    width:10px;
+    height:60px;
+    position:absolute;
+    border:1px solid white;
+    right:0;
+    top:40%;
+}
+#samaritan_threat img{
+    max-width: calc(100% - 20px);
+    width:100%;
+    height:auto;
+    border:1px solid grey;
+    border-radius: 2px;
+    margin:2px
+}
+#samaritan_threat .heading {
+    padding: 8px;
+    border-bottom:2px solid white;
+    margin-bottom: 2px;
+}
+#samaritan_threat .deviant {
+    font-weight: bold;
+    color:red;
+    text-transform: uppercase;
+}
+#samaritan_threat .text {
+    display:flex;
+    max-width: calc(100% - 36px);
+    margin-left:2px;
+}
+#samaritan_threat .text .label {
+    font-size:0.8em;
+    color:rgba(255, 255, 255, 0.644);
+    display:flex;
+    align-items: center;
+    text-shadow: 1px 0px rgb(213, 255, 179);;
+}
+#samaritan_threat .text .value:not(:empty) {
+    margin-left:16px;
+    padding:0px 8px;
+    background-color:rgba(175, 0, 0, 0.699);
+    text-shadow: 1px 0px 2px rgb(213, 255, 179);;
+    font-weight: bold;
+}
+#samaritan_threat .text.projection {
+    margin-top:4px;
+}
+#samaritan_threat .text.projection,
+#samaritan_threat .text.conclusion {
+    padding:8px;
+    border:1px solid grey;
+}
+#samaritan_threat .new_data {
+    margin-top:4px;
+    padding:18px 20px;
+    padding-bottom:36px;
+    border-top: 2px solid rgba(255, 255, 255, 0.801);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.801);
+    border-left: 1px solid rgba(255, 255, 255, 0.473);
+    border-right: 1px solid rgba(255, 255, 255, 0.473);
+}
+#samaritan_threat .overlay {
+    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15) 1px, transparent 1px, transparent 2px);
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:10;
+}
+#samaritan_threat .image-container {
+    position:relative;
+}
+#samaritan_threat .image-container #image_cycle {
+    background-color:black;
+    background-size:100% 100%;
+    background-position: center;
+    position:absolute;
+    top:2px;;
+    left:2px;
+    width:100%;
+    height:100%;
+    max-width: calc(100% - 20px);
+}
+.button-container {
+    position:fixed;
+    top:0;
+    width:100%;
+    left:0px;
+}

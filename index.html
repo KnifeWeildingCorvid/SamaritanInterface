@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>p5.js example</title>
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+      background-color: #1b1b1b;
+    }
+  </style>
+  <script src="libs/p5/p5.min.js"></script>
+  <!-- <script src="../addons/p5.sound.js"></script> -->
+  <script src="SamaritanInterface.js"></script>
+</head>
+
+<body>
+  <div class="button-container">
+    <button id="reset">Reset</button>
+    <button id="complete">Complete</button>
+  </div>
+  <main></main>
+  <div id="info"></div>
+  <div id="samaritan_threat">
+    <div class="overlay"></div>
+    <div class="heading">/// <span class="deviant">Deviant</span></div>
+    <div class="image-container">
+      <div id="image_cycle"></div>
+      <img src="assets/john_reese1.png">
+    </div>
+    
+    <div class="projection text"><div class="label">PROJECTION:</div><div class="value"></div></div>
+    <div class="conclusion text"><div class="label">CONCLUSION:</div><div class="value"></div></div>
+    <div class="new_data">
+      NEW DATA ACQUIRED
+    </div>
+  </div>
+</body>
+
+</html>
