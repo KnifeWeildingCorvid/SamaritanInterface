@@ -9,7 +9,7 @@ var n_complete = false;
 var index = 0;
 var lastMillis = 0;
 var b_reset,b_complete;
-var evidence = ["assets/john_reese2.png",
+var images = ["assets/john_reese2.png",
                "assets/john_reese3.png",
                "assets/john_reese4.png",
                "assets/john_reese5.png",
@@ -23,7 +23,8 @@ var evidence = ["assets/john_reese2.png",
                "assets/john_reese13.png",
                "assets/john_reese14.png",
                "assets/john_reese15.png",
-               "assets/john_reese16.png"]
+               "assets/john_reese16.png"];
+var evidence;
 class SamaritanCursor {
     x;
     y;
@@ -139,7 +140,7 @@ class Node {
     constructor(data_object) {
         this.x = random(0, width);
         this.y = random(0, height);
-        this.r = random(20, 30);
+        this.r = random(5, 10);
         this.xSpeed = random(-2, 2);
         this.ySpeed = random(-1, 1.5);
         this.focused = false;
@@ -153,10 +154,12 @@ class Node {
     // creation of a particle.
     createNode(info, visited) {
         noStroke();
-        this.allVisited = visited
+        this.allVisited = visited;
+        
         if (this.focused) {
-            fill(255);
-            circle(this.mx, this.my, this.r * 2);
+           // stroke(255);
+            //nofill();
+            //circle(this.mx, this.my, this.r * 2);
             //this.createDataRect();
             this.createDomRect(info)
             this.visited = true;
@@ -193,7 +196,8 @@ class Node {
     
     focus(mx, my) {
         let d = dist(mx, my, this.x, this.y);
-        this.focused = d < this.r;
+        let c = sqrt((this.x - mx) * (this.x - mx) + (this.y - my) * (this.y - my))
+        this.focused = c < 30;
         this.mx = (this.focused) ? mx : 0;
         this.my = (this.focused) ? my : 0;
 
@@ -215,11 +219,12 @@ class Node {
     joinNode(particles) {
         if (!this.allVisited) {
             particles.forEach(element => {
-
+                let d = dist(this.x, this.y, element.x, element.y);
+                let m = map(d,0,width, 0,1);
                 if (this.visited && element.visited) {
-                    stroke('rgba(255,255,255,0.4)')
+                    stroke(`rgba(255,0,0,${constrain(1-m,0,1)})`)
                 } else {
-                    stroke('rgba(255,255,255,0.04)');
+                    stroke(`rgba(120,120,120,${constrain(1-m,0,1)})`);
                 }
                 line(this.x, this.y, element.x, element.y);
 
@@ -251,6 +256,7 @@ function preload() {
 function setup() {
     // put setup code here
     createCanvas(windowWidth, windowHeight);
+    evidence = shuffle(images)
     info = select('#info');
     info.position(0, 0, 'fixed');
     info.hide();
@@ -270,9 +276,9 @@ function setup() {
 }
 function imageCycle(elem, images) {
    
-if(index < images.length -1) {
+if(index < images.length) {
     
-    if(millis() > lastMillis + 100) {
+    if(millis() > lastMillis + 200) {
         console.log(index)
         index = index + 1;
         elem.elt.style.backgroundImage = `url('${images[index]}')`
