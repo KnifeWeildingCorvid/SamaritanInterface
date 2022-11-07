@@ -48,7 +48,7 @@ class SamaritanCursor {
         var polar2 = this.PolarToCartesian((r / 2) - line_length, theta);
         return { "x1": polar1.x, "y1": polar1.y, "x2": polar2.x, "y2": polar2.y };
     }
-    draw() {
+    draw(isHovered) {
 
         let dx = mouseX - this.ex;
         this.ex += dx * this.easing;
@@ -85,10 +85,14 @@ class SamaritanCursor {
         var line4 = this.getPolarLineSegment(130, TWO_PI + p, 5)
         line(this.ex + line3.x1, this.ey + line3.y1, this.ex + line3.x2, this.ey + line3.y2);
         line(this.ex + line4.x1, this.ey + line4.y1, this.ex + line4.x2, this.ey + line4.y2);
+       
         arc(this.ex, this.ey, 130, 130, TWO_PI - p, TWO_PI + p);
         strokeWeight(2);
         stroke(255, 0, 0);
+        if(isHovered) {
+        
         triangle(mouseX + 20, mouseY - 20, mouseX - 20, mouseY - 20, mouseX, mouseY + 20);
+        }
     }
 }
 class Line {
@@ -105,37 +109,36 @@ class Line {
 class Grid {
     lines = [];
     points = [];
-    constructor(cell_size, sizeX, sizeY) {
+    constructor(cell_size) {
         this.cell_size = constrain(cell_size, 10, 100);
-        this.sizeX = sizeX;
-        this.sizeY = sizeY;
+        
     }
     setup() {
         this.lines = [];
         this.points = [];
-        for (let x = 0; x < width; x++) {
-            if (x % this.cell_size == 0) {
+        for (let x = this.cell_size /2; x <= width; x+= this.cell_size) {
+            
                 
                 this.lines.push(new Line(x, 0, x, height))
 
-            }
+            
         }
-        for (let y = 0; y < height; y++) {
-            if (y % this.cell_size == 0) {
+        for (let y = this.cell_size /2; y < height; y+= this.cell_size) {
+            
                 this.lines.push(new Line(0, y, width, y))
 
-            }
+            
         }
-        for (let x = 0; x < width; x++) {
-            for (let y = 0; y < height; y++) {
-                if (x % this.cell_size == 0 && y % this.cell_size == 0) {
-                    this.points.push(new Line(x - 5, y + this.cell_size, x + 5, y + this.cell_size))
-                    this.points.push(new Line(x + this.cell_size, y - 5, x + this.cell_size, y + 5))
-                }
+        for (let x = this.cell_size /2; x <= width; x+= this.cell_size) {
+            for (let y = this.cell_size /2; y < height; y+= this.cell_size) {
+               
+                    this.points.push(new Line(x - 5, y , x + 5, y ))
+                    this.points.push(new Line(x , y - 5, x , y + 5))
+                
             }
 
         }
-        console.log(this.lines)
+      
     }
     draw() {
         for (let i = 0; i < this.lines.length; i++) {
@@ -202,8 +205,6 @@ class Node {
         let info_size = info.size();
         let nx = this.x + this.r + 100;
         let ny = this.y - info_size.height / 2
-
-        //console.log(info.size())
         if (width > 800) {
             if (this.x + this.r + offset + info_size.width > width) {
                 nx = this.x - this.r - offset - info_size.width;
@@ -280,7 +281,6 @@ function loadData() {
     for (let i = 0; i < Object.keys(data).length; i++) {
         nodes.push(new Node(data[i]))
     }
-    console.log(nodes)
 }
 function checkComplete(nodes) {
     for (let i = 0; i < nodes.length; i++) {
@@ -289,16 +289,15 @@ function checkComplete(nodes) {
     return true;
 }
 function windowResized() {
-    resizeCanvas(windowWidth, windowHeight);
+    resizeCanvas(windowWidth -20, windowHeight -20);
     grid.setup();
   }
 function preload() {
     data = loadJSON('assets/data.json');
-    console.log(data)
 }
 function setup() {
     // put setup code here
-    createCanvas(windowWidth, windowHeight);
+    createCanvas(windowWidth - 20, windowHeight - 20);
     evidence = shuffle(images)
     info = select('#info');
     info.position(0, 0, 'fixed');
@@ -310,7 +309,7 @@ function setup() {
 
     threat.hide();
     loadData();
-    grid = new Grid(windowWidth/20, windowWidth, windowHeight);
+    grid = new Grid(100);
     grid.setup();
     cursor = new SamaritanCursor();
     b_reset = select('#reset');
@@ -322,11 +321,11 @@ function imageCycle(elem, images) {
 
     if (index < images.length) {
 
-        if (millis() > lastMillis + 200) {
-            console.log(index)
-            index = index + 1;
+        if (millis() > lastMillis + 150) {
+           
             elem.elt.style.backgroundImage = `url('${images[index]}')`
             lastMillis = millis();
+            index = index + 1;
         }
 
     } else {
@@ -398,6 +397,6 @@ function draw() {
     textAlign(RIGHT);
     textSize(11);
     text('Steal it. No warranty though. Made with p5.', -10, height - 20, width);
-    cursor.draw();
+    cursor.draw(checkFocus(nodes));
 
 }

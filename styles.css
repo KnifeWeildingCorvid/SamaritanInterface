@@ -1,5 +1,15 @@
 main {
     display:flex;
+   
+}
+* {
+    box-sizing: border-box;
+}
+body {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100%;
 }
 #info {
     padding:12px;
@@ -75,7 +85,7 @@ main {
     margin-bottom: 2px;
     display:flex;
     align-items:center;
-    line-height: 18px;
+    
     
 }
 #samaritan_threat .deviant {
@@ -83,6 +93,7 @@ main {
     color:red;
     text-transform: uppercase;
     margin-left: 5px;
+    line-height: 24px;
 }
 #samaritan_threat .text {
     display:flex;
