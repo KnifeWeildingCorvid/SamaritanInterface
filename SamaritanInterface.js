@@ -4,31 +4,35 @@ var data = {};
 var nodes = [];
 var info;
 var threat;
-var cycle,projection, conclusion;
+var cycle, projection, conclusion;
 var n_complete = false;
 var index = 0;
 var lastMillis = 0;
-var b_reset,b_complete;
+var b_reset, b_complete;
 var images = ["assets/john_reese2.png",
-               "assets/john_reese3.png",
-               "assets/john_reese4.png",
-               "assets/john_reese5.png",
-               "assets/john_reese6.png",
-               "assets/john_reese7.png",
-               "assets/john_reese8.png",
-               "assets/john_reese9.png",
-               "assets/john_reese10.png",
-               "assets/john_reese11.png",
-               "assets/john_reese12.png",
-               "assets/john_reese13.png",
-               "assets/john_reese14.png",
-               "assets/john_reese15.png",
-               "assets/john_reese16.png"];
+    "assets/john_reese3.png",
+    "assets/john_reese4.png",
+    "assets/john_reese5.png",
+    "assets/john_reese6.png",
+    "assets/john_reese7.png",
+    "assets/john_reese8.png",
+    "assets/john_reese9.png",
+    "assets/john_reese10.png",
+    "assets/john_reese11.png",
+    "assets/john_reese12.png",
+    "assets/john_reese13.png",
+    "assets/john_reese14.png",
+    "assets/john_reese15.png",
+    "assets/john_reese16.png"];
 var evidence;
 class SamaritanCursor {
     x;
     y;
+    //https://p5js.org/examples/input-easing.html
+    ex = 1;
+    ey = 1;
     diameter = 150;
+    easing = 0.5;
     constructor() {
         this.x = 0;
         this.y = 0;
@@ -45,6 +49,12 @@ class SamaritanCursor {
         return { "x1": polar1.x, "y1": polar1.y, "x2": polar2.x, "y2": polar2.y };
     }
     draw() {
+
+        let dx = mouseX - this.ex;
+        this.ex += dx * this.easing;
+
+        let dy = mouseY - this.ey;
+        this.ey += dy * this.easing;
         noFill();
 
         strokeWeight(35);
@@ -55,10 +65,11 @@ class SamaritanCursor {
         circle(mouseX, mouseY, this.diameter);
         strokeWeight(1);
         stroke('rgba(255,255,255,0.25)');
-        circle(mouseX - movedX, mouseY - movedY, this.diameter);
+        circle(this.ex, this.ey, this.diameter);
         strokeWeight(2);
         stroke(255);
         var p = QUARTER_PI / 2;
+
 
 
         arc(mouseX, mouseY, 200, 200, PI - p, PI + p);
@@ -67,14 +78,14 @@ class SamaritanCursor {
         stroke(0);
         var line1 = this.getPolarLineSegment(130, PI - p, 5);
         var line2 = this.getPolarLineSegment(130, PI + p, 5)
-        line(mouseX + line1.x1, mouseY + line1.y1, mouseX + line1.x2, mouseY + line1.y2);
-        line(mouseX + line2.x1, mouseY + line2.y1, mouseX + line2.x2, mouseY + line2.y2);
-        arc(mouseX, mouseY, 130, 130, PI - p, PI + p);
+        line(this.ex + line1.x1, this.ey + line1.y1, this.ex + line1.x2, this.ey + line1.y2);
+        line(this.ex + line2.x1, this.ey + line2.y1, this.ex + line2.x2, this.ey + line2.y2);
+        arc(this.ex, this.ey, 130, 130, PI - p, PI + p);
         var line3 = this.getPolarLineSegment(130, TWO_PI - p, 5);
         var line4 = this.getPolarLineSegment(130, TWO_PI + p, 5)
-        line(mouseX + line3.x1, mouseY + line3.y1, mouseX + line3.x2, mouseY + line3.y2);
-        line(mouseX + line4.x1, mouseY + line4.y1, mouseX + line4.x2, mouseY + line4.y2);
-        arc(mouseX, mouseY, 130, 130, TWO_PI - p, TWO_PI + p);
+        line(this.ex + line3.x1, this.ey + line3.y1, this.ex + line3.x2, this.ey + line3.y2);
+        line(this.ex + line4.x1, this.ey + line4.y1, this.ex + line4.x2, this.ey + line4.y2);
+        arc(this.ex, this.ey, 130, 130, TWO_PI - p, TWO_PI + p);
         strokeWeight(2);
         stroke(255, 0, 0);
         triangle(mouseX + 20, mouseY - 20, mouseX - 20, mouseY - 20, mouseX, mouseY + 20);
@@ -95,26 +106,28 @@ class Grid {
     lines = [];
     points = [];
     constructor(cell_size, sizeX, sizeY) {
-        this.cell_size = cell_size;
+        this.cell_size = constrain(cell_size, 10, 100);
         this.sizeX = sizeX;
         this.sizeY = sizeY;
     }
     setup() {
-        for (let x = 0; x < this.sizeX; x++) {
+        this.lines = [];
+        this.points = [];
+        for (let x = 0; x < width; x++) {
             if (x % this.cell_size == 0) {
-
-                this.lines.push(new Line(x, 0, x, this.sizeY))
+                
+                this.lines.push(new Line(x, 0, x, height))
 
             }
         }
-        for (let y = 0; y < this.sizeY; y++) {
+        for (let y = 0; y < height; y++) {
             if (y % this.cell_size == 0) {
-                this.lines.push(new Line(0, y, this.sizeX, y))
+                this.lines.push(new Line(0, y, width, y))
 
             }
         }
-        for (let x = 0; x < this.sizeX; x++) {
-            for (let y = 0; y < this.sizeY; y++) {
+        for (let x = 0; x < width; x++) {
+            for (let y = 0; y < height; y++) {
                 if (x % this.cell_size == 0 && y % this.cell_size == 0) {
                     this.points.push(new Line(x - 5, y + this.cell_size, x + 5, y + this.cell_size))
                     this.points.push(new Line(x + this.cell_size, y - 5, x + this.cell_size, y + 5))
@@ -122,6 +135,7 @@ class Grid {
             }
 
         }
+        console.log(this.lines)
     }
     draw() {
         for (let i = 0; i < this.lines.length; i++) {
@@ -155,9 +169,9 @@ class Node {
     createNode(info, visited) {
         noStroke();
         this.allVisited = visited;
-        
+
         if (this.focused) {
-           // stroke(255);
+            // stroke(255);
             //nofill();
             //circle(this.mx, this.my, this.r * 2);
             //this.createDataRect();
@@ -166,7 +180,7 @@ class Node {
         } else {
             if (this.allVisited) {
                 fill('rgba(255,0,0,0.5)');
-               
+
             } else {
                 fill('rgba(200,169,169,0.5)');
             }
@@ -183,17 +197,32 @@ class Node {
     }
     createDomRect(info) {
         info.show();
-        info.elt.innerHTML = this.data_object['content']
+        info.elt.innerHTML = this.data_object['content'];
+        let offset = 100;
+        let info_size = info.size();
+        let nx = this.x + this.r + 100;
+        let ny = this.y - info_size.height / 2
+
         //console.log(info.size())
-        if (this.x + this.r + 100 + 300 > width) {
-            info.position(this.x - this.r - 100 - 300, this.y - info.size().height / 2, "fixed")
+        if (width > 800) {
+            if (this.x + this.r + offset + info_size.width > width) {
+                nx = this.x - this.r - offset - info_size.width;
+            }
+            if (this.y - info_size.height / 2 < 0) {
+                ny = this.y;
+            }
+            if (this.y + info_size.height / 2 > height) {
+                ny = this.y - info_size.height
+            }
         } else {
-            info.position(this.x + this.r + 100, this.y - info.size().height / 2, "fixed")
+            nx = width / 2 - info_size.width / 2;
+            ny = height / 2 - info_size.height / 2;
         }
 
 
+        info.position(nx, ny, "fixed")
     }
-    
+
     focus(mx, my) {
         let d = dist(mx, my, this.x, this.y);
         let c = sqrt((this.x - mx) * (this.x - mx) + (this.y - my) * (this.y - my))
@@ -220,29 +249,29 @@ class Node {
         if (!this.allVisited) {
             particles.forEach(element => {
                 let d = dist(this.x, this.y, element.x, element.y);
-                let m = map(d,0,width, 0,1);
+                let m = map(d, 0, width, 0, 1);
                 if (this.visited && element.visited) {
-                    stroke(`rgba(255,0,0,${constrain(1-m,0,1)})`)
+                    stroke(`rgba(255,0,0,${constrain(1 - m, 0, 1)})`)
                 } else {
-                    stroke(`rgba(120,120,120,${constrain(1-m,0,1)})`);
+                    stroke(`rgba(120,120,120,${constrain(1 - m, 0, 1)})`);
                 }
                 line(this.x, this.y, element.x, element.y);
 
 
             });
         } else {
-            
+
             particles.forEach(element => {
-               
+
                 let d = dist(this.x, this.y, element.x, element.y);
-                let m = map(d,0,width, 0,1);
-                stroke(`rgba(255,0,0,${constrain(1-m,0,1)})`)
+                let m = map(d, 0, width, 0, 1);
+                stroke(`rgba(255,0,0,${constrain(1 - m, 0, 1)})`)
                 line(this.x, this.y, element.x, element.y);
 
 
             });
             stroke('rgba(255,0,0,0.4)');
-            line(this.x, this.y, width/2, height/2)
+            line(this.x, this.y, width / 2, height / 2)
         }
     }
 }
@@ -259,6 +288,10 @@ function checkComplete(nodes) {
     }
     return true;
 }
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
+    grid.setup();
+  }
 function preload() {
     data = loadJSON('assets/data.json');
     console.log(data)
@@ -274,11 +307,10 @@ function setup() {
     cycle = select('#image_cycle');
     projection = select('.projection.text .value');
     conclusion = select('.conclusion.text .value');
-    //run this once so the images load
-    imageCycle(cycle, evidence);
+
     threat.hide();
     loadData();
-    grid = new Grid(100, windowWidth, windowHeight);
+    grid = new Grid(windowWidth/20, windowWidth, windowHeight);
     grid.setup();
     cursor = new SamaritanCursor();
     b_reset = select('#reset');
@@ -287,24 +319,24 @@ function setup() {
     b_complete.mouseClicked(complete)
 }
 function imageCycle(elem, images) {
-   
-if(index < images.length) {
-    
-    if(millis() > lastMillis + 200) {
-        console.log(index)
-        index = index + 1;
-        elem.elt.style.backgroundImage = `url('${images[index]}')`
-        lastMillis = millis();
+
+    if (index < images.length) {
+
+        if (millis() > lastMillis + 200) {
+            console.log(index)
+            index = index + 1;
+            elem.elt.style.backgroundImage = `url('${images[index]}')`
+            lastMillis = millis();
+        }
+
+    } else {
+        projection.html('THREAT');
+        conclusion.html('ELIMINATE')
+        elem.hide();
     }
-   
-} else {
-    projection.html('THREAT');
-    conclusion.html('ELIMINATE')
-    elem.hide();
-}
     //elem.elt.style.backgroundImage = `url('${images[0]}')`
-    
-    
+
+
 }
 function checkFocus(nodes) {
     for (let i = 0; i < nodes.length; i++) {
@@ -313,7 +345,7 @@ function checkFocus(nodes) {
     return false;
 }
 function reset() {
-    for(let i = 0; i < nodes.length; i++) {
+    for (let i = 0; i < nodes.length; i++) {
         nodes[i].visited = false;
     }
     projection.html('');
@@ -321,19 +353,19 @@ function reset() {
     cycle.show();
     index = 0;
 }
-function complete(){
-    for(let i = 0; i < nodes.length; i++) {
+function complete() {
+    for (let i = 0; i < nodes.length; i++) {
         nodes[i].visited = true;
-    } 
+    }
 }
 function draw() {
     // put drawing code here;
 
     background(0);
-    for (let y = 0; y < windowHeight; y++) {
+    for (let y = 0; y < height; y++) {
         if (y % 4 == 0) {
             stroke(10)
-            line(0, y, windowWidth, y)
+            line(0, y, width, y)
         }
 
     }
@@ -351,8 +383,8 @@ function draw() {
 
 
     }
-    if(n_complete) {
-        
+    if (n_complete) {
+
         threat.show();
         imageCycle(cycle, evidence)
     } else {
