@@ -65,9 +65,9 @@ body {
 #samaritan_threat::before {
     content:"";
     width:10px;
-    height:60px;
+    height:80px;
     position:absolute;
-    border:1px solid white;
+    border:1px solid rgba(255, 255, 255, 0.4);
     right:0;
     top:40%;
 }
@@ -143,17 +143,7 @@ body {
 #samaritan_threat .image-container {
     position:relative;
 }
-#samaritan_threat .image-container #image_cycle {
-    background-color:black;
-    background-size:100% 100%;
-    background-position: center;
-    position:absolute;
-    top:2px;;
-    left:3px;
-    width:100%;
-    height:calc(100% - 10px);
-    max-width: calc(100% - 20px);
-}
+
 .button-container {
     position:fixed;
     bottom:0;

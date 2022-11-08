@@ -4,26 +4,12 @@ var data = {};
 var nodes = [];
 var info;
 var threat;
-var cycle, projection, conclusion;
+var cycle, projection, conclusion, image_container, threat_image;
 var n_complete = false;
 var index = 0;
 var lastMillis = 0;
 var b_reset, b_complete;
-var images = ["assets/john_reese2.png",
-    "assets/john_reese3.png",
-    "assets/john_reese4.png",
-    "assets/john_reese5.png",
-    "assets/john_reese6.png",
-    "assets/john_reese7.png",
-    "assets/john_reese8.png",
-    "assets/john_reese9.png",
-    "assets/john_reese10.png",
-    "assets/john_reese11.png",
-    "assets/john_reese12.png",
-    "assets/john_reese13.png",
-    "assets/john_reese14.png",
-    "assets/john_reese15.png",
-    "assets/john_reese16.png"];
+var images = [];
 var evidence;
 class SamaritanCursor {
     x;
@@ -85,13 +71,13 @@ class SamaritanCursor {
         var line4 = this.getPolarLineSegment(130, TWO_PI + p, 5)
         line(this.ex + line3.x1, this.ey + line3.y1, this.ex + line3.x2, this.ey + line3.y2);
         line(this.ex + line4.x1, this.ey + line4.y1, this.ex + line4.x2, this.ey + line4.y2);
-       
+
         arc(this.ex, this.ey, 130, 130, TWO_PI - p, TWO_PI + p);
         strokeWeight(2);
         stroke(255, 0, 0);
-        if(isHovered) {
-        
-        triangle(mouseX + 20, mouseY - 20, mouseX - 20, mouseY - 20, mouseX, mouseY + 20);
+        if (isHovered) {
+
+            triangle(mouseX + 20, mouseY - 20, mouseX - 20, mouseY - 20, mouseX, mouseY + 20);
         }
     }
 }
@@ -111,34 +97,34 @@ class Grid {
     points = [];
     constructor(cell_size) {
         this.cell_size = constrain(cell_size, 10, 100);
-        
+
     }
     setup() {
         this.lines = [];
         this.points = [];
-        for (let x = this.cell_size /2; x <= width; x+= this.cell_size) {
-            
-                
-                this.lines.push(new Line(x, 0, x, height))
+        for (let x = this.cell_size / 2; x <= width; x += this.cell_size) {
 
-            
-        }
-        for (let y = this.cell_size /2; y < height; y+= this.cell_size) {
-            
-                this.lines.push(new Line(0, y, width, y))
 
-            
+            this.lines.push(new Line(x, 0, x, height))
+
+
         }
-        for (let x = this.cell_size /2; x <= width; x+= this.cell_size) {
-            for (let y = this.cell_size /2; y < height; y+= this.cell_size) {
-               
-                    this.points.push(new Line(x - 5, y , x + 5, y ))
-                    this.points.push(new Line(x , y - 5, x , y + 5))
-                
+        for (let y = this.cell_size / 2; y < height; y += this.cell_size) {
+
+            this.lines.push(new Line(0, y, width, y))
+
+
+        }
+        for (let x = this.cell_size / 2; x <= width; x += this.cell_size) {
+            for (let y = this.cell_size / 2; y < height; y += this.cell_size) {
+
+                this.points.push(new Line(x - 5, y, x + 5, y))
+                this.points.push(new Line(x, y - 5, x, y + 5))
+
             }
 
         }
-      
+
     }
     draw() {
         for (let i = 0; i < this.lines.length; i++) {
@@ -278,8 +264,15 @@ class Node {
 }
 
 function loadData() {
-    for (let i = 0; i < Object.keys(data).length; i++) {
-        nodes.push(new Node(data[i]))
+    for (let i = 0; i < data['evidence'].length; i++) {
+        nodes.push(new Node(data['evidence'][i]))
+    }
+    for (let i = 0; i < data['images'].length; i++) {
+        let img = createImg(data['images'][i]);
+        img.id(`img${i}`);
+        img.hide();
+        images.push(img);
+        image_container.child(img);
     }
 }
 function checkComplete(nodes) {
@@ -289,16 +282,16 @@ function checkComplete(nodes) {
     return true;
 }
 function windowResized() {
-    resizeCanvas(windowWidth -20, windowHeight -20);
+    resizeCanvas(windowWidth - 20, windowHeight - 20);
     grid.setup();
-  }
+}
 function preload() {
     data = loadJSON('assets/data.json');
 }
 function setup() {
     // put setup code here
     createCanvas(windowWidth - 20, windowHeight - 20);
-    evidence = shuffle(images)
+    
     info = select('#info');
     info.position(0, 0, 'fixed');
     info.hide();
@@ -306,7 +299,9 @@ function setup() {
     cycle = select('#image_cycle');
     projection = select('.projection.text .value');
     conclusion = select('.conclusion.text .value');
-
+    image_container = select('.image-container');
+    threat_image = select('#threat-image');
+    threat_image.hide();
     threat.hide();
     loadData();
     grid = new Grid(100);
@@ -315,23 +310,28 @@ function setup() {
     b_reset = select('#reset');
     b_reset.mouseClicked(reset);
     b_complete = select('#complete');
-    b_complete.mouseClicked(complete)
+    b_complete.mouseClicked(complete);
+    evidence = shuffle(images)
 }
-function imageCycle(elem, images) {
+function imageCycle( images) {
 
     if (index < images.length) {
 
         if (millis() > lastMillis + 150) {
-           
-            elem.elt.style.backgroundImage = `url('${images[index]}')`
+            if (index > 0) {
+                images[index - 1].hide();
+            }
+            images[index].show();
             lastMillis = millis();
             index = index + 1;
         }
 
     } else {
         projection.html('THREAT');
-        conclusion.html('ELIMINATE')
-        elem.hide();
+        conclusion.html('ELIMINATE');
+        images[images.length - 1].hide();
+        threat_image.show();
+     
     }
     //elem.elt.style.backgroundImage = `url('${images[0]}')`
 
@@ -349,7 +349,7 @@ function reset() {
     }
     projection.html('');
     conclusion.html('')
-    cycle.show();
+    threat_image.hide();
     index = 0;
 }
 function complete() {
@@ -385,7 +385,7 @@ function draw() {
     if (n_complete) {
 
         threat.show();
-        imageCycle(cycle, evidence)
+        imageCycle(evidence)
     } else {
         threat.hide();
     }
