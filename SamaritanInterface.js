@@ -96,27 +96,30 @@ class Grid {
     lines = [];
     points = [];
     constructor(cell_size) {
-        this.cell_size = constrain(cell_size, 10, 100);
+        this.cell_size = cell_size;
 
     }
     setup() {
         this.lines = [];
         this.points = [];
-        for (let x = this.cell_size / 2; x <= width; x += this.cell_size) {
+        let xoff = width % this.cell_size;
+        let yoff = height / 2
+        
+        for (let x = 0; x <= width; x += this.cell_size) {
 
 
             this.lines.push(new Line(x, 0, x, height))
 
 
         }
-        for (let y = this.cell_size / 2; y < height; y += this.cell_size) {
+        for (let y =0; y < height; y += this.cell_size) {
 
             this.lines.push(new Line(0, y, width, y))
 
 
         }
-        for (let x = this.cell_size / 2; x <= width; x += this.cell_size) {
-            for (let y = this.cell_size / 2; y < height; y += this.cell_size) {
+        for (let x = 0; x <= width; x += this.cell_size) {
+            for (let y = 0; y < height; y += this.cell_size) {
 
                 this.points.push(new Line(x - 5, y, x + 5, y))
                 this.points.push(new Line(x, y - 5, x, y + 5))
@@ -144,8 +147,8 @@ class Node {
         this.x = random(0, width);
         this.y = random(0, height);
         this.r = random(5, 10);
-        this.xSpeed = random(-2, 2);
-        this.ySpeed = random(-1, 1.5);
+        this.xSpeed = random(-1, 1);
+        this.ySpeed = random(-0.5, 0.5);
         this.focused = false;
         this.visited = false;
         this.mx = 0;
@@ -164,19 +167,21 @@ class Node {
             //nofill();
             //circle(this.mx, this.my, this.r * 2);
             //this.createDataRect();
+            fill('rgba(255,0,0,1)');
             this.createDomRect(info)
             this.visited = true;
         } else {
-            if (this.allVisited) {
+            if (this.allVisited || this.visited) {
                 fill('rgba(255,0,0,0.5)');
 
             } else {
                 fill('rgba(200,169,169,0.5)');
             }
 
-            circle(this.x, this.y, this.r);
+           
             //info.hide();
         }
+        circle(this.x, this.y, this.r);
     }
     createDataRect() {
         fill(200);
@@ -290,7 +295,7 @@ function preload() {
 }
 function setup() {
     // put setup code here
-    createCanvas(windowWidth - 20, windowHeight - 20);
+    createCanvas(windowWidth - 48, windowHeight - 48);
     
     info = select('#info');
     info.position(0, 0, 'fixed');
@@ -327,10 +332,12 @@ function imageCycle( images) {
         }
 
     } else {
+        if (millis() > lastMillis + 150) {
         projection.html('THREAT');
         conclusion.html('ELIMINATE');
         images[images.length - 1].hide();
         threat_image.show();
+        }
      
     }
     //elem.elt.style.backgroundImage = `url('${images[0]}')`
@@ -374,9 +381,8 @@ function draw() {
     }
     n_complete = checkComplete(nodes)
     for (let i = 0; i < nodes.length; i++) {
-
-        nodes[i].createNode(info, n_complete);
         nodes[i].joinNode(nodes.slice(i));
+        nodes[i].createNode(info, n_complete);
         nodes[i].focus(mouseX, mouseY)
         nodes[i].moveNode();
 
