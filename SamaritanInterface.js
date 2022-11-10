@@ -101,25 +101,30 @@ class Grid {
     }
     setup() {
         this.lines = [];
-        this.points = [];
-        let xoff = width % this.cell_size;
-        let yoff = height / 2
+        this.points = []
         
-        for (let x = 0; x <= width; x += this.cell_size) {
+        let xs = this.cell_size * ceil((width / this.cell_size) );
+        let ys = this.cell_size * ceil((height / this.cell_size) );
+        console.log(xs / 2)
+        console.log(width)
+        let xoff = (width / 2) - xs;
+        let yoff = (height / 2) - ys
+        
+        for (let x = xoff; x <= width; x += this.cell_size) {
 
 
             this.lines.push(new Line(x, 0, x, height))
 
 
         }
-        for (let y =0; y < height; y += this.cell_size) {
+        for (let y =yoff; y < height; y += this.cell_size) {
 
             this.lines.push(new Line(0, y, width, y))
 
 
         }
-        for (let x = 0; x <= width; x += this.cell_size) {
-            for (let y = 0; y < height; y += this.cell_size) {
+        for (let x = xoff; x <= width; x += this.cell_size) {
+            for (let y = yoff; y < height; y += this.cell_size) {
 
                 this.points.push(new Line(x - 5, y, x + 5, y))
                 this.points.push(new Line(x, y - 5, x, y + 5))
