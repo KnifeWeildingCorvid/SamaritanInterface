@@ -1,5 +1,6 @@
 main {
     display:flex;
+    
    
 }
 * {
@@ -10,10 +11,11 @@ body {
     align-items:center;
     justify-content:center;
     height:100%;
+    font-family: Arial, Helvetica, sans-serif;
 }
 #info {
     padding:12px;
-    background-color:rgba(0, 0, 0, 0.432);
+    background-color:rgba(0, 0, 0, 0.7);
     border:2px solid rgba(255, 255, 255, 0.514);
     border-radius:10px;
     color:rgba(255, 255, 255, 0.753);
@@ -150,11 +152,27 @@ body {
     width:100%;
     left:0px;
     padding:5px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    flex-wrap: wrap;
+}
+.button-container .credit {
+    order:3;
+    width:100%;
+    text-align: center;
+    margin:4px 0px;
+    font-size: 0.9em;
+}
+.credit a {
+    color:blanchedalmond
 }
 .button-container button {
     border:1px solid rgba(255, 255, 255, 0.514);
     color:white;
     padding:5px;
     background-color: transparent;
-    border-radius: 2px;;
+    border-radius: 2px;
+    margin-right:4px;
 }

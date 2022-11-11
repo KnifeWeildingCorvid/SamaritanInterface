@@ -11,6 +11,7 @@ var lastMillis = 0;
 var b_reset, b_complete;
 var images = [];
 var evidence;
+
 class SamaritanCursor {
     x;
     y;
@@ -95,9 +96,23 @@ class Line {
 class Grid {
     lines = [];
     points = [];
+    xoff = 0;
+    yoff = 0;
+    xMin =  Number.POSITIVE_INFINITY;
+    xMax =  Number.NEGATIVE_INFINITY;
+    yMin = Number.POSITIVE_INFINITY;
+     yMax = Number.NEGATIVE_INFINITY;
+
     constructor(cell_size) {
         this.cell_size = cell_size;
 
+    }
+    getBounds(){
+        return {"xMin":this.xMin,
+                "xMax":this.xMax,
+                "yMin":this.yMin,
+                "yMax":this.yMax
+                }
     }
     setup() {
         this.lines = [];
@@ -107,28 +122,46 @@ class Grid {
         let ys = this.cell_size * ceil((height / this.cell_size) );
         console.log(xs / 2)
         console.log(width)
-        let xoff = (width / 2) - xs;
-        let yoff = (height / 2) - ys
+        this.xoff = (width / 2) - xs;
+        this.yoff = (height / 2) - ys
+        console.log("Xoff",this.xoff);
         
-        for (let x = xoff; x <= width; x += this.cell_size) {
-
-
+        for (let x = this.xoff; x <= width; x += this.cell_size) {
+            if(x > 0 && x <= width) {
+            if(x < this.xMin) {
+                this.xMin = x;
+            }
+            if(x > this.xMax) {
+                this.xMax = x
+            }
             this.lines.push(new Line(x, 0, x, height))
+            }
+            
+        }
+        console.log(this.xMin);
+            console.log(this.xMax)
+
+        for (let y =this.yoff; y < height; y += this.cell_size) {
+            if(y > 0 && y <= height) {
+                if(y < this.yMin) {
+                    this.yMin = y;
+                }
+                if(y > this.yMax) {
+                    this.yMax = y
+                }
+                this.lines.push(new Line(0, y, width, y))
+            }
 
 
         }
-        for (let y =yoff; y < height; y += this.cell_size) {
-
-            this.lines.push(new Line(0, y, width, y))
-
-
-        }
-        for (let x = xoff; x <= width; x += this.cell_size) {
-            for (let y = yoff; y < height; y += this.cell_size) {
-
+        console.log(this.yMin);
+            console.log(this.yMax)
+        for (let x = this.xoff; x <= width; x += this.cell_size) {
+            for (let y = this.yoff; y < height; y += this.cell_size) {
+                if(y > 0 && y <= height && x > 0 && x <= width) {
                 this.points.push(new Line(x - 5, y, x + 5, y))
                 this.points.push(new Line(x, y - 5, x, y + 5))
-
+                }
             }
 
         }
@@ -143,14 +176,31 @@ class Grid {
             stroke(50)
             this.points[i].draw();
         }
+        noStroke();
+        fill(10)
+       rect(0,this.yMin,this.xMin,this.yMax - this.yMin)
+       rect(this.xMax,this.yMin,this.xMin,this.yMax - this.yMin)
+       rect(0,0,width,this.yMin)
+       rect(0,this.yMax,width,this.yMin)
+       stroke(70)
+       line(this.xMin/2,0, this.xMin/2, height * 0.55)
+       line(this.xMin/2,height * 0.75, this.xMin/2, height )
+       line(this.xMax+this.xMin/2,0, this.xMax+this.xMin/2, height * 0.55)
+       line(this.xMax+this.xMin/2,height * 0.75, this.xMax+this.xMin/2, height )
+       stroke(150)
+       line(this.xMin/2 + 10,0, this.xMin/2 + 10, height * 0.33)
+       line(this.xMin/2 + 10, height * 0.33,this.xMin/2 - 8 ,(height * 0.33) + 10)
+       line(this.xMin/2 + 10,height * 0.5, this.xMin/2 + 10, height )
+       line(this.xMin/2 + 10,height * 0.5, this.xMin/2 - 8 ,(height * 0.5) - 10 )
+       line(this.xMax+this.xMin/2 - 10,0, this.xMax+this.xMin/2 - 10, height )
     }
 }
 //https://p5js.org/examples/simulate-particles.html
 //I initially made a network grapher but fugg it the above looks nicer
 class Node {
-    constructor(data_object) {
-        this.x = random(0, width);
-        this.y = random(0, height);
+    constructor(data_object,bounds) {
+        this.x = random(bounds.xMin, bounds.xMax);
+        this.y = random(bounds.yMin, bounds.yMax);
         this.r = random(5, 10);
         this.xSpeed = random(-1, 1);
         this.ySpeed = random(-0.5, 0.5);
@@ -160,6 +210,8 @@ class Node {
         this.my = 0;
         this.data_object = data_object;
         this.allVisited = false;
+        this.bounds = bounds;
+       
     }
 
     // creation of a particle.
@@ -231,9 +283,9 @@ class Node {
     // setting the particle in motion.
     moveNode() {
         if (!this.focused) {
-            if (this.x < 0 || this.x > width)
+            if (this.x < this.bounds.xMin || this.x > this.bounds.xMax)
                 this.xSpeed *= -1;
-            if (this.y < 0 || this.y > height)
+            if (this.y < this.bounds.yMin || this.y > this.bounds.yMax)
                 this.ySpeed *= -1;
             this.x += this.xSpeed;
             this.y += this.ySpeed;
@@ -273,9 +325,9 @@ class Node {
     }
 }
 
-function loadData() {
+function loadData(bounds) {
     for (let i = 0; i < data['evidence'].length; i++) {
-        nodes.push(new Node(data['evidence'][i]))
+        nodes.push(new Node(data['evidence'][i],bounds))
     }
     for (let i = 0; i < data['images'].length; i++) {
         let img = createImg(data['images'][i]);
@@ -292,7 +344,7 @@ function checkComplete(nodes) {
     return true;
 }
 function windowResized() {
-    resizeCanvas(windowWidth - 20, windowHeight - 20);
+    resizeCanvas(windowWidth - 8, windowHeight - 8);
     grid.setup();
 }
 function preload() {
@@ -300,7 +352,7 @@ function preload() {
 }
 function setup() {
     // put setup code here
-    createCanvas(windowWidth - 48, windowHeight - 48);
+    createCanvas(windowWidth - 8, windowHeight -8);
     
     info = select('#info');
     info.position(0, 0, 'fixed');
@@ -313,10 +365,10 @@ function setup() {
     threat_image = select('#threat-image');
     threat_image.hide();
     threat.hide();
-    loadData();
     grid = new Grid(100);
     grid.setup();
-    cursor = new SamaritanCursor();
+    loadData(grid.getBounds());
+     cursor = new SamaritanCursor();
     b_reset = select('#reset');
     b_reset.mouseClicked(reset);
     b_complete = select('#complete');
@@ -389,7 +441,7 @@ function draw() {
         nodes[i].joinNode(nodes.slice(i));
         nodes[i].createNode(info, n_complete);
         nodes[i].focus(mouseX, mouseY)
-        nodes[i].moveNode();
+        nodes[i].moveNode(grid.getBounds());
 
 
     }
@@ -406,8 +458,8 @@ function draw() {
     fill(255)
     text('Hover over the network nodes. Make sure to visit them all.', 0, 30, width);
     textAlign(RIGHT);
-    textSize(11);
-    text('Steal it. No warranty though. Made with p5.', -10, height - 20, width);
+    //textSize(11);
+    //text('Steal it. No warranty though. Made with p5.', -10, height - 20, width);
     cursor.draw(checkFocus(nodes));
 
 }
